@@ -1,63 +1,80 @@
 /*
- * feedback.c
+ * feedback_dma.c
  *
- *  Created on: 11.03.2018
+ *  Created on: 16.07.2018
  *      Author: Micha³M
  */
 
+#include <stdint.h>
 #include "feedback.h"
 #include "stm32f1xx.h"
 
-ADC_HandleTypeDef AdcHandle;
+
+ADC_HandleTypeDef adc;
+DMA_HandleTypeDef dma;
+
+uint16_t adc_value[ADC_CHANNELS];
 
 void feedback_init() {
 
-	RCC_PeriphCLKInitTypeDef PeriphClkInit;
+	__HAL_RCC_DMA1_CLK_ENABLE();
+	FEEDBACK_ADC_ON;
+	RCC_PeriphCLKInitTypeDef adc_clk;
+	adc_clk.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+	adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV2;
+	HAL_RCCEx_PeriphCLKConfig(&adc_clk);
 
-	__HAL_RCC_ADC1_CLK_ENABLE();
-	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-	PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
-	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+	FB_GPIO_CLOCK_ON;
 
 	GPIO_InitTypeDef gpioInit;
 	__HAL_RCC_GPIOA_CLK_ENABLE()
 	;
 	gpioInit.Pin = M1FB_PIN;
 	gpioInit.Mode = GPIO_MODE_ANALOG;
-	gpioInit.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(M1FB_PORT, &gpioInit);
 
-	ADC_ChannelConfTypeDef adcChannel;
+	gpioInit.Pin = M2FB_PIN;
+	gpioInit.Mode = GPIO_MODE_ANALOG;
+	HAL_GPIO_Init(M2FB_PORT, &gpioInit);
 
-	AdcHandle.Instance = FEEDBACK_ADC;
-	AdcHandle.Init.ScanConvMode = DISABLE;
-	AdcHandle.Init.ContinuousConvMode = ENABLE;
-	AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-	AdcHandle.Init.NbrOfDiscConversion = 1;
-	AdcHandle.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-	AdcHandle.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	AdcHandle.Init.NbrOfConversion = 1;
 
-	HAL_ADC_Init(&AdcHandle);
+	adc.Instance = FEEDBACK_ADC;
+	adc.Init.ContinuousConvMode = ENABLE;
+	adc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+	adc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	adc.Init.ScanConvMode = ADC_SCAN_ENABLE;
+	adc.Init.NbrOfConversion = ADC_CHANNELS;
+	adc.Init.DiscontinuousConvMode = DISABLE;
+	adc.Init.NbrOfDiscConversion = 1;
+	HAL_ADC_Init(&adc);
 
-	adcChannel.Channel = ADC_CHANNEL_1;
-	adcChannel.Rank = ADC_REGULAR_RANK_1;
-	adcChannel.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
-	HAL_ADC_ConfigChannel(&AdcHandle, &adcChannel);
-	HAL_ADC_Start(&AdcHandle);
-	adc_calib();
+	ADC_ChannelConfTypeDef adc_ch;
+	adc_ch.Channel = M1_CHANNEL;
+	adc_ch.Rank = ADC_REGULAR_RANK_1;
+	adc_ch.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+	HAL_ADC_ConfigChannel(&adc, &adc_ch);
+
+	adc_ch.Channel = M2_CHANNEL;
+	adc_ch.Rank = ADC_REGULAR_RANK_2;
+	HAL_ADC_ConfigChannel(&adc, &adc_ch);
+
+	HAL_ADCEx_Calibration_Start(&adc);
+
+	dma.Instance = DMA1_Channel1;
+	dma.Init.Direction = DMA_PERIPH_TO_MEMORY;
+	dma.Init.PeriphInc = DMA_PINC_DISABLE;
+	dma.Init.MemInc = DMA_MINC_ENABLE;
+	dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+	dma.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+	dma.Init.Mode = DMA_CIRCULAR;
+	dma.Init.Priority = DMA_PRIORITY_HIGH;
+	HAL_DMA_Init(&dma);
+	__HAL_LINKDMA(&adc, DMA_Handle, dma);
+
+	HAL_ADC_Start_DMA(&adc, (uint32_t*)adc_value, ADC_CHANNELS);
+
 }
-int adc_read(int channel) {
-	if (HAL_ADC_PollForConversion(&AdcHandle, 1000) == HAL_OK) {
-		return HAL_ADC_GetValue(&AdcHandle);
-	}
-	return -1;
-}
-void adc_calib(){
-	 if (HAL_ADCEx_Calibration_Start(&AdcHandle) != HAL_OK)
-	  {
-	    /* Calibration Error */
-	   // Error_Handler();
-	  }
+uint16_t adc_read(int channel) {
+	 return adc_value[channel];
 }
 

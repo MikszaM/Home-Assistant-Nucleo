@@ -49,22 +49,57 @@ void SystemClock_Config(void) {
 	}
 }
 
+
+
 int main(void) {
 	SystemClock_Config();
+	SysTick_Config(SystemCoreClock / 1000);
+	//SystemClock_Config();
 	HAL_Init();
-
 	usb_uart_init();
 	printf("Hello world !\n");
-	driver_init();
+	dc_driver_init();
 
+	uint16_t value;
+	float v;
 	while (1) {
-		char value = receive_char();
-		if(value>32&&value<126){
-			send_string("Received: ");
-			send_char(value);
-		}
-
+		char c = receive_char();
+			switch (c) {
+				case 'f':
+					m1_pwm(100);
+					m2_pwm(100);
+					m2_forward();
+					m1_forward();
+					send_char(c);
+					break;
+				case 'b':
+					m1_pwm(50);
+					m2_pwm(50);
+					m1_backward();
+					m2_backward();
+					send_char(c);
+					break;
+				case 's':
+					//m1_pwm(0);
+					//m2_pwm(0);
+					m1_stop();
+					m2_stop();
+					send_char(c);
+					break;
+				case 'r':
+					value = fb_read(0);
+					v = (float)value * 3.3f / 4096.0f;
+					printf("ADC0 = %d (%.3fV) ", value, v);
+					value = fb_read(1);
+					v = (float)value * 3.3f / 4096.0f;
+					printf("ADC1 = %d (%.3fV)\n", value, v);
+					break;
+			}
 	}
+}
+
+void signal_detected(int motor){
+	printf("Signal on motor %d detected!\n",motor);
 }
 
 

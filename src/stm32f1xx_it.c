@@ -9,6 +9,7 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "DC_Motor_Driver/signal_flag.h"
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx.h"
 #ifdef USE_RTOS_SYSTICK
@@ -39,4 +40,9 @@ void SysTick_Handler(void)
 #ifdef USE_RTOS_SYSTICK
 	osSystickHandler();
 #endif
+}
+void SF_HANDLER(void)
+{
+	HAL_GPIO_EXTI_IRQHandler(M1SF_PIN);
+	HAL_GPIO_EXTI_IRQHandler(M2SF_PIN);
 }

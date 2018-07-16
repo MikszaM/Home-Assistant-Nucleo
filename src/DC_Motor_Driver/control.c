@@ -4,15 +4,17 @@
  *  Created on: 25.02.2018
  *      Author: Micha³M
  */
-
+#include <stdint.h>
 #include "control.h"
+#include "signal_flag.h"
 #include "pwm.h"
 #include "feedback.h"
 #include "stm32f1xx.h"
 
-void driver_init() {
+void dc_driver_init() {
 	pwm_init();
 	feedback_init();
+	signal_flag_init();
 
 	GPIO_CONTROL_ON;
 
@@ -73,6 +75,6 @@ void m1_pwm(int dc){
 void m2_pwm(int dc){
 	set_pwm2(dc);
 }
-int fb_read(int channel){
+uint16_t fb_read(int channel){
 	return adc_read(channel);
 }
