@@ -8,10 +8,13 @@
 #include "stm32f1xx.h"
 #include "uart_usb.h"
 #include <string.h>
-UART_HandleTypeDef uart;
+
+uint8_t value[DATA_LENGTH];
 
 void send_char(char c) {
 	HAL_UART_Transmit(&uart, (uint8_t*) &c, 1, 1000);
+	//while (HAL_UART_GetState(&uart) != HAL_UART_STATE_READY){}
+	//HAL_UART_Transmit_IT(&uart, (uint8_t*) &c, 1);
 }
 
 int __io_putchar(int ch) {
@@ -48,15 +51,20 @@ void usb_uart_init() {
 	uart.Init.OverSampling = UART_OVERSAMPLING_16;
 	uart.Init.Mode = UART_MODE_TX_RX;
 	HAL_UART_Init(&uart);
+
+	HAL_NVIC_EnableIRQ(USART2_IRQn);
+	receive_char();
 }
 void send_string(const char* s) {
-	HAL_UART_Transmit(&uart, (uint8_t*) s, strlen(s), 1000);
+	//while (HAL_UART_GetState(&uart) != HAL_UART_STATE_READY){}
+	//HAL_UART_Transmit_IT(&uart, (uint8_t*) s, strlen(s) == HAL_BUSY);
+    HAL_UART_Transmit(&uart, (uint8_t*) s, strlen(s),1000);
 }
-char receive_char(void){
-	if (__HAL_UART_GET_FLAG(&uart, UART_FLAG_RXNE) == SET) {
-				uint8_t value;
-				HAL_UART_Receive(&uart, &value, 1, 100);
-				return value;
-	}
-	return -1;
+void receive_char(){
+	HAL_UART_Receive_IT(&uart, &value, DATA_LENGTH);
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* uart){
+	receive_char();
+	data_received(value);
 }
