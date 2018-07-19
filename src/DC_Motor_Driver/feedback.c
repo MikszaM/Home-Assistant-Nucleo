@@ -24,7 +24,8 @@ void feedback_init() {
 	adc_clk.AdcClockSelection = RCC_ADCPCLK2_DIV2;
 	HAL_RCCEx_PeriphCLKConfig(&adc_clk);
 
-	FB_GPIO_CLOCK_ON;
+	FB_GPIO_CLOCK1_ON;
+	FB_GPIO_CLOCK2_ON;
 
 	GPIO_InitTypeDef gpioInit;
 	__HAL_RCC_GPIOA_CLK_ENABLE()

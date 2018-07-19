@@ -10,7 +10,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "DC_Motor_Driver/signal_flag.h"
+#include "Encoder/encoder.h"
 #include "UART_USB/uart_usb.h"
+
 #include "stm32f1xx_hal.h"
 #include "stm32f1xx.h"
 #ifdef USE_RTOS_SYSTICK
@@ -48,5 +50,10 @@ void SF_HANDLER(void)
 	HAL_GPIO_EXTI_IRQHandler(M2SF_PIN);
 }
 void USART2_IRQHandler(){
+
 	HAL_UART_IRQHandler(&uart);
+}
+void TIM3_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&encoder2);
 }

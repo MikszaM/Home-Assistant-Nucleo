@@ -11,6 +11,7 @@
 #include "stm32f1xx.h"
 #include "UART_USB/uart_usb.h"
 #include "DC_Motor_Driver/control.h"
+#include "Encoder/encoder.h"
 
 //Additional functions
 void led_init(){
@@ -101,5 +102,10 @@ void data_received(char data[DATA_LENGTH]){
 	send_string("\n\r");
 
 }
-
+void turn_counted(){
+	printf("Counter: %d\n",get_position(1));
+	printf("Full turns: %d\n",get_full_turns(1));
+	printf("Part turns: %d\n",get_part_turns(1));
+	printf("Positions: %d\n",get_observable_positions(1));
+}
 

@@ -13,11 +13,11 @@ void signal_flag_init(){
 	SF_GPIO_CLOCK_ON;
 
 	GPIO_InitTypeDef gpio;
-	gpio.Mode = GPIO_MODE_IT_FALLING;
+	gpio.Mode = GPIO_MODE_IT_RISING;
+	gpio.Pull = GPIO_PULLDOWN;
 	gpio.Pin = M1SF_PIN;
 	HAL_GPIO_Init(M1SF_PORT, &gpio);
 
-	gpio.Mode = GPIO_MODE_IT_FALLING;
 	gpio.Pin = M2SF_PIN;
 	HAL_GPIO_Init(M2SF_PORT, &gpio);
 

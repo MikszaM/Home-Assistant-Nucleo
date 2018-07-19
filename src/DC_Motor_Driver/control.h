@@ -31,5 +31,5 @@ void enable_motors();
 void disable_motors();
 
 uint16_t fb_read(int channel);
-
+uint16_t position(uint8_t motor);
 

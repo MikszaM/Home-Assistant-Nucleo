@@ -15,7 +15,7 @@ void dc_driver_init() {
 	pwm_init();
 	feedback_init();
 	signal_flag_init();
-
+	encoder_init();
 	GPIO_CONTROL_ON;
 
 	GPIO_InitTypeDef gpio;
