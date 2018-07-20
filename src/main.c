@@ -59,6 +59,8 @@ void led_init(){
 }
 
 volatile char c;
+volatile uint16_t ms_passed;
+uint16_t period=1000;
 //Main function
 int main(void) {
 	SystemCoreClock = 8000000;
@@ -72,8 +74,10 @@ int main(void) {
 	led_init();
 
 	uint16_t value;
+	float v;
+	//float pi=PI;
 	while (1) {
-		float v;
+
 		switch (c) {
 			case 'f':
 				m2_forward(100);
@@ -96,7 +100,7 @@ int main(void) {
 			case 'r':
 				value = fb_read(0);
 				v = (float)value * 3.3f / 4096.0f;
-				printf("ADC0 = %d (%.3fV) ", value, v);
+				printf("ADC0 = %d (%.3fV)\n", value, v);
 				value = fb_read(1);
 				v = (float)value * 3.3f / 4096.0f;
 				printf("ADC1 = %d (%.3fV)\n", value, v);
@@ -110,6 +114,10 @@ int main(void) {
 			case 'e':
 				enable_motors();
 				send_string("Motors enabled\r\n");
+				c=' ';
+				break;
+			case 'l':
+				printf("%.3f\n",PI*WHEEL_DIAMETER);
 				c=' ';
 				break;
 			}
@@ -134,10 +142,17 @@ void data_received(char data[DATA_LENGTH]){
 	send_string("\n\r");
 
 }
-void turn_counted(){
-	printf("Counter: %d\n",get_position(1));
-	printf("Full turns: %d\n",get_full_turns(1));
-	printf("Part turns: %d\n",get_part_turns(1));
-	printf("Positions: %d\n",get_observable_positions(1));
+void enc_counted(uint8_t motor){
+	printf("Counter: %d\n",get_position(motor));
+	printf("Full turns: %d\n",get_full_turns(motor));
+	printf("Part turns: %d\n",get_part_turns(motor));
+	printf("Positions: %d\n",get_observable_positions(motor));
 }
 
+
+void HAL_SYSTICK_Callback(){
+	ms_passed++;
+	if(ms_passed%period==0){
+		send_string("One second passed\r");
+	}
+}

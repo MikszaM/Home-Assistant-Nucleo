@@ -53,7 +53,11 @@ void USART2_IRQHandler(){
 
 	HAL_UART_IRQHandler(&uart);
 }
-void TIM3_IRQHandler(void)
+void TIM2_INT_HANDLER(void)
 {
   HAL_TIM_IRQHandler(&encoder2);
+}
+void TIM1_INT_HANDLER(void)
+{
+  HAL_TIM_IRQHandler(&encoder1);
 }

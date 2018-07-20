@@ -37,6 +37,10 @@ void encoder_init(){
 	  HAL_TIM_Encoder_Init(&encoder1, &encConfig);
 
 	  HAL_TIM_Encoder_Start(&encoder1, TIM_CHANNEL_ALL);
+	  __HAL_TIM_CLEAR_IT(&encoder1, TIM_IT_UPDATE );
+	  HAL_NVIC_EnableIRQ(TIM1_INTERRUPT);
+
+	  HAL_TIM_Base_Start_IT(&encoder1);
 
 	  encoder2.Instance = ENCODER_TIMER2;
 	  encoder2.Init.Prescaler = 0;
@@ -48,7 +52,7 @@ void encoder_init(){
 
 	  HAL_TIM_Encoder_Start(&encoder2, TIM_CHANNEL_ALL);
 	  __HAL_TIM_CLEAR_IT(&encoder2, TIM_IT_UPDATE );
-	  HAL_NVIC_EnableIRQ(TIM3_IRQn);
+	  HAL_NVIC_EnableIRQ(TIM2_INTERRUPT);
 
 
 	  HAL_TIM_Base_Start_IT(&encoder2);
@@ -81,8 +85,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	   }
 	   full_turns[1]=observable_positions[1]/OBSERVABLE_POSITIONS_PER_TURN;
 	   part_turns[1]=observable_positions[1]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[1]);
-	   turn_counted();
+	   enc_counted(1);
    }
+   if(htim == &encoder1)
+      {
+   	   if(get_position(0)<(TICKS_PER_TURN/(2*OBSERVABLE_POSITIONS_PER_TURN))){
+   		   observable_positions[0]++;
+   	   }
+   	   else{
+   		   observable_positions[0]--;
+   	   }
+   	   full_turns[0]=observable_positions[0]/OBSERVABLE_POSITIONS_PER_TURN;
+   	   part_turns[0]=observable_positions[0]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[0]);
+   	   enc_counted(0);
+      }
 }
 
 
