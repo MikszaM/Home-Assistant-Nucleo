@@ -16,7 +16,7 @@
 ░░░░░░░░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░░░░░█░░░░░░░░░░░░░░NUCLEO-F103RB░░░░░░░░░░░░░░░█░░░░░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░░░░░█▄▄▄░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▄▄▄█░░░░░░░░░░░░░░░░░░░░░░
-░░░░░░░░░░░░░░░░PC10─█12█───PC11-░░░░░░░░░░░░░░░░░░░░░░PC9───█12█─PC8-M2SF░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░PC10─█12█───PC11░░░░░░░░░░░░░░░░░░░░░░░PC9───█12█─PC8-M2SF░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░PC12─█34█───PD2░░░░░░░░░░░░░░░░░░M2IN1-PB8─█─█34█─PC6-M1SF░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░VDD─█56█───E5V░░░░░░░░░░░░░░░░░░M2IN2-PB9─█─█56█─PC5░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░BOOT0─█78█───GND░░░░░░░░░░░░░░░░░░░░░░░AVDD─█─█78█─U5V░░░░░░░░░░░░░░░░░░
@@ -24,11 +24,11 @@
 ░░░░░░░░░░░░░░░░░░NC─█12█─█─IOREF░░░░░░░░░░░░░░░░░░LED-PA5─█─█12█─PA12░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░PA13─█34█─█─RESET░░░░░░░░░░░░░░░░░░░A2-PA6─█─█34█─PA11░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░PA14─█56█─█─+3V3░░░░░░░░░░░░░░░░░░░░B2-PA7─█─█56█─PB12░░░░░░░░░░░░░░░░░
-░░░░░░░░░░░░░░░░PA15─█78█─█─+5V░░░░░░░░░░░░░░░░░░M1IN1-PB6─█─█78█─PB11░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░PA15─█78█─█─+5V░░░░░░░░░░░░░░░░░░M1IN1-PB6─█─█78█─PB11-SDA░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░GND─█90█─█─GND░░░░░░░░░░░░░░░░░░░░░░░░PC7─█─█90█─GND░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░M1IN2-PB7─█12█─█─GND░░░░░░░░░░░░░░░░░░░░░░░░PA9─▀─█12█─PB2░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░PC13─█34█─█─VIN░░░░░░░░░░░░░░░░░░░░░░░░PA8─█─█34█─PB1░░░░░░░░░░░░░░░░░░
-░░░░░░░░░░░░░░░░PC14─█56█───NC░░░░░░░░░░░░░░░░░░░░░░░░PB10─█─█56█─PB15░░░░░░░░░░░░░░░░░
+░░░░░░░░░░░░░░░░PC14─█56█───NC░░░░░░░░░░░░░░░░░░░░SCL-PB10─█─█56█─PB15░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░PC15─█78█─█─PA0-A1░░░░░░░░░░░░░░░░░░░░░PB4─█─█78█─PB14░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░PD0─█90█─█─PA1-B1░░░░░░░░░░░░░░░░░░░░░PB5─█─█90█─PB13░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░░░░░░░PD1─█12█─█─PA4-M1FB░░░░░░░░░░░░░░░░░░░PB3─█─█12█─AGND░░░░░░░░░░░░░░░░░
@@ -44,6 +44,7 @@
 #include "UART_USB/uart_usb.h"
 #include "DC_Motor_Driver/control.h"
 #include "Encoder/encoder.h"
+#include "IMU/imu.h"
 
 //Additional functions
 void led_init(){
@@ -60,22 +61,29 @@ void led_init(){
 
 volatile char c;
 volatile uint16_t ms_passed;
-uint16_t period=1000;
+uint16_t period=100;
+volatile uint16_t var=0;
+
+
 //Main function
 int main(void) {
 	SystemCoreClock = 8000000;
 	HAL_Init();
 	usb_uart_init();
 	printf("Hello world !\n");
-	dc_driver_init();
-
-
+	//dc_driver_init();
+	imu_init();
 
 	led_init();
 
 	uint16_t value;
+	uint8_t hours;
+	uint8_t my_hour;
+
 	float v;
-	//float pi=PI;
+	int16_t a_x,a_y,a_z,g_x,g_y,g_z,m_x,m_y,m_z;
+	float ax,ay,az,gx,gy,gz,mx,my,mz,br;
+	uint32_t b_r;
 	while (1) {
 
 		switch (c) {
@@ -85,7 +93,7 @@ int main(void) {
 				send_string("Full speed forward\r\n");
 				c=' ';
 				break;
-			case 'b':
+			case 'q':
 				m1_backward(30);
 				m2_backward(30);
 				send_string("30% speed backward\r\n");
@@ -120,6 +128,65 @@ int main(void) {
 				printf("%.3f\n",PI*WHEEL_DIAMETER);
 				c=' ';
 				break;
+			case 'h':
+				hours=read_hour();
+				printf("%d\n",hours);
+				c=' ';
+				break;
+			case 'w':
+				my_hour=19;
+				write_hour(my_hour);
+				c=' ';
+				break;
+			case 'c':
+				printf("Acc and gyro: (0x%02X)\n", read_register8(ACC_AND_GYRO_ADDRESS,0x0f));
+				printf("Magnetometer: (0x%02X)\n", read_register8(MAGNETOMETER_ADDRESS,0x0f));
+				printf("Barometer: (0x%02X)\n", read_register8(BAROMETER_ADDRESS,0x0f));
+				printf("Acc enabled?: (0x%02X)\n", read_register8(ACC_AND_GYRO_ADDRESS,0x10));
+				printf("Gyro enabled?: (0x%02X)\n", read_register8(ACC_AND_GYRO_ADDRESS,0x11));
+				printf("Magn enabled?: (0x%02X)\n", read_register8(MAGNETOMETER_ADDRESS,0x22));
+				printf("Baro enabled?: (0x%02X)\n", read_register8(BAROMETER_ADDRESS,0x20));
+
+				c=' ';
+				break;
+			case 'p':
+				acc_init();
+				gyro_init();
+				magn_init();
+				baro_init();
+				break;
+			case 'a':
+				a_x = read_acc('x');
+				a_y = read_acc('y');
+				a_z = read_acc('z');
+				ax = a_x * ACC_MAX / ACC_BITS;
+				ay = a_y * ACC_MAX / ACC_BITS;
+				az = a_z * ACC_MAX / ACC_BITS;
+				printf("X = %.2f   Y = %.2f   Z = %.2f\n", ax, ay, az);
+				break;
+			case 'g':
+				g_x = read_gyro('x');
+				g_y = read_gyro('y');
+				g_z = read_gyro('z');
+				gx = g_x * GYRO_MAX / GYRO_BITS;
+				gy = g_y * GYRO_MAX / GYRO_BITS;
+				gz = g_z * GYRO_MAX / GYRO_BITS;
+				printf("X = %.2f   Y = %.2f   Z = %.2f\n", gx, gy, gz);
+				break;
+			case 'm':
+				m_x = read_magn('x');
+				m_y = read_magn('y');
+				m_z = read_magn('z');
+				mx = m_x * MAGN_MAX / MAGN_BITS;
+				my = m_y * MAGN_MAX / MAGN_BITS;
+				mz = m_z * MAGN_MAX / MAGN_BITS;
+				printf("X = %.2f   Y = %.2f   Z = %.2f\n", mx, my, mz);
+				break;
+			case 'b':
+				b_r = read_baro();
+				br = b_r / BARO_BITS;
+				printf("Baro = %.2f  \n", br);
+				break;
 			}
 		 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 		 HAL_Delay(100);
@@ -153,6 +220,9 @@ void enc_counted(uint8_t motor){
 void HAL_SYSTICK_Callback(){
 	ms_passed++;
 	if(ms_passed%period==0){
-		send_string("One second passed\r");
+		//send_string("One second passed\r");
+		//var+=1;
+		//if(var>10) var = 0;
+		//printf("%d %d\n",var,var+1);
 	}
 }
