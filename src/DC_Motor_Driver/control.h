@@ -17,16 +17,16 @@
 
 #define M1_D1_PORT GPIOC
 #define M1_D1_PIN GPIO_PIN_0
-#define M2_D1_PORT GPIOC
-#define M2_D1_PIN GPIO_PIN_1
+#define M0_D1_PORT GPIOC
+#define M0_D1_PIN GPIO_PIN_1
 
 void dc_driver_init();
 void m1_forward(int dc);
 void m1_backward(int dc);
 void m1_stop();
-void m2_forward(int dc);
-void m2_backward(int dc);
-void m2_stop();
+void m0_forward(int dc);
+void m0_backward(int dc);
+void m0_stop();
 void enable_motors();
 void disable_motors();
 

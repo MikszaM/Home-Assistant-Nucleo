@@ -38,7 +38,7 @@ void encoder_init(){
 
 	  HAL_TIM_Encoder_Start(&encoder1, TIM_CHANNEL_ALL);
 	  __HAL_TIM_CLEAR_IT(&encoder1, TIM_IT_UPDATE );
-	  HAL_NVIC_EnableIRQ(TIM1_INTERRUPT);
+	  HAL_NVIC_EnableIRQ(TIM2_INTERRUPT);
 
 	  HAL_TIM_Base_Start_IT(&encoder1);
 
@@ -52,7 +52,7 @@ void encoder_init(){
 
 	  HAL_TIM_Encoder_Start(&encoder2, TIM_CHANNEL_ALL);
 	  __HAL_TIM_CLEAR_IT(&encoder2, TIM_IT_UPDATE );
-	  HAL_NVIC_EnableIRQ(TIM2_INTERRUPT);
+	  HAL_NVIC_EnableIRQ(TIM3_INTERRUPT);
 
 
 	  HAL_TIM_Base_Start_IT(&encoder2);
@@ -73,32 +73,27 @@ uint16_t  get_position(uint8_t motor){
 	else return -1;
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-   if(htim == &encoder2)
-   {
-	   if(get_position(1)<(TICKS_PER_TURN/(2*OBSERVABLE_POSITIONS_PER_TURN))){
-		   observable_positions[1]++;
-	   }
-	   else{
-		   observable_positions[1]--;
-	   }
-	   full_turns[1]=observable_positions[1]/OBSERVABLE_POSITIONS_PER_TURN;
-	   part_turns[1]=observable_positions[1]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[1]);
-	   enc_counted(1);
-   }
-   if(htim == &encoder1)
-      {
-   	   if(get_position(0)<(TICKS_PER_TURN/(2*OBSERVABLE_POSITIONS_PER_TURN))){
-   		   observable_positions[0]++;
-   	   }
-   	   else{
-   		   observable_positions[0]--;
-   	   }
-   	   full_turns[0]=observable_positions[0]/OBSERVABLE_POSITIONS_PER_TURN;
-   	   part_turns[0]=observable_positions[0]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[0]);
-   	   enc_counted(0);
-      }
+void enc1_counted(){
+	if(get_position(1)<(TICKS_PER_TURN/(2*OBSERVABLE_POSITIONS_PER_TURN))){
+		observable_positions[1]++;
+	}
+	else{
+		observable_positions[1]--;
+	}
+	full_turns[1]=observable_positions[1]/OBSERVABLE_POSITIONS_PER_TURN;
+	part_turns[1]=observable_positions[1]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[1]);
 }
+void enc2_counted(){
+	if(get_position(0)<(TICKS_PER_TURN/(2*OBSERVABLE_POSITIONS_PER_TURN))){
+		observable_positions[0]++;
+	}
+	else{
+		observable_positions[0]--;
+	}
+	full_turns[0]=observable_positions[0]/OBSERVABLE_POSITIONS_PER_TURN;
+	part_turns[0]=observable_positions[0]-(OBSERVABLE_POSITIONS_PER_TURN* full_turns[0]);
+
+}
+
 
 

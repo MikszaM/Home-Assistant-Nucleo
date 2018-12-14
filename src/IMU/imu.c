@@ -60,23 +60,23 @@ uint32_t read_register24(uint8_t dev_addr, uint8_t reg_addr){
 void write_register(uint8_t dev_addr, uint8_t reg_aggr, uint8_t data){
 	HAL_I2C_Mem_Write(&i2c, dev_addr, reg_aggr, 1, (uint8_t*)&data, sizeof(data), HAL_MAX_DELAY);
 }
-
-
-uint8_t read_hour(){
-	uint8_t hour;
-
-	hour = read_register8(RTC_ADDRESS, 0x02);
-	hour=((hour>>4)*10)+(hour&0x0F);
-
-	return hour;
-}
-void write_hour(uint8_t hour){
-	uint8_t hourh,hourl,hourbcd;
-	hourh=(hour-(hour%10))/10;
-	hourl=hour%10;
-	hourbcd=(hourh<<4)|hourl;
-	write_register(RTC_ADDRESS, 0x02,hourbcd);
-}
+//
+//
+//uint8_t read_hour(){
+//	uint8_t hour;
+//
+//	hour = read_register8(RTC_ADDRESS, 0x02);
+//	hour=((hour>>4)*10)+(hour&0x0F);
+//
+//	return hour;
+//}
+//void write_hour(uint8_t hour){
+//	uint8_t hourh,hourl,hourbcd;
+//	hourh=(hour-(hour%10))/10;
+//	hourl=hour%10;
+//	hourbcd=(hourh<<4)|hourl;
+//	write_register(RTC_ADDRESS, 0x02,hourbcd);
+//}
 void acc_init(){
 	uint8_t limit = (uint8_t)ACC_MAX;
 	switch (limit){

@@ -11,6 +11,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "DC_Motor_Driver/signal_flag.h"
 #include "Encoder/encoder.h"
+#include "Stepper/stepper.h"
+
 #include "UART_USB/uart_usb.h"
 
 #include "stm32f1xx_hal.h"
@@ -53,11 +55,15 @@ void USART2_IRQHandler(){
 
 	HAL_UART_IRQHandler(&uart);
 }
-void TIM2_INT_HANDLER(void)
+void TIM3_INT_HANDLER(void)
 {
   HAL_TIM_IRQHandler(&encoder2);
 }
-void TIM1_INT_HANDLER(void)
+void TIM2_INT_HANDLER(void)
 {
   HAL_TIM_IRQHandler(&encoder1);
+}
+void TIM1_INT_HANDLER(void)
+{
+    HAL_TIM_IRQHandler(&stepper1);
 }

@@ -16,11 +16,11 @@
 #define ENCODER_TIMER1 TIM2
 #define ENCODER_TIMER2 TIM3
 
-#define TIM1_INTERRUPT TIM2_IRQn
-#define TIM2_INTERRUPT TIM3_IRQn
+#define TIM2_INTERRUPT TIM2_IRQn
+#define TIM3_INTERRUPT TIM3_IRQn
 
-#define TIM1_INT_HANDLER TIM2_IRQHandler
-#define TIM2_INT_HANDLER TIM3_IRQHandler
+#define TIM2_INT_HANDLER TIM2_IRQHandler
+#define TIM3_INT_HANDLER TIM3_IRQHandler
 
 #define GPIO_ENCODER_ON __HAL_RCC_GPIOA_CLK_ENABLE()
 #define ENCODER1_CLK_ON __HAL_RCC_TIM2_CLK_ENABLE()
@@ -39,12 +39,9 @@
 #define B2_ENCODER2_2_PIN GPIO_PIN_7
 
 #define TICKS_PER_TURN 1920
-#define OBSERVABLE_POSITIONS_PER_TURN 2
+#define OBSERVABLE_POSITIONS_PER_TURN 120
 
-#define WHEEL_DIAMETER 90
-#define WHEEL_DISTANCE 188
 
-#define PI 3.1415926
 
 
 TIM_HandleTypeDef encoder1;
@@ -52,6 +49,8 @@ TIM_HandleTypeDef encoder2;
 TIM_Encoder_InitTypeDef encConfig;
 
 void encoder_init();
+void enc1_counted();
+void enc2_counted();
 uint16_t  get_position(uint8_t motor);
 int16_t  get_full_turns(uint8_t motor);
 int16_t  get_part_turns(uint8_t motor);
